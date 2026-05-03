@@ -35,7 +35,7 @@ const ParticipantJoin = () => {
     setIsJoining(true);
     setError('');
 
-    const socket = io('http://localhost:3001');
+    const socket = io("https://quiz-master-app-97b2.onrender.com");
     
     socket.emit('joinQuiz', { quizId: pin.trim(), name: name.trim(), avatar: selectedAvatar }, (response) => {
       if (response.success) {

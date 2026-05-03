@@ -26,7 +26,7 @@ const ParticipantPlay = () => {
       return;
     }
 
-    const newSocket = io('http://localhost:3001');
+    const socket = io("https://quiz-master-app-97b2.onrender.com");
     setSocket(newSocket);
 
     // Rejoin the quiz room without creating a duplicate participant

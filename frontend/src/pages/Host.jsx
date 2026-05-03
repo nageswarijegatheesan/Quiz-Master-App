@@ -16,7 +16,7 @@ const Host = () => {
   const joinUrl = `${window.location.origin}/join/${quizId}`;
 
   useEffect(() => {
-    const newSocket = io('http://localhost:3001');
+    const socket = io("https://quiz-master-app-97b2.onrender.com");
     setSocket(newSocket);
 
     // Rejoin admin room and get existing participants
