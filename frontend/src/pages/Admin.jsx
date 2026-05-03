@@ -1,3 +1,4 @@
+import { io } from "socket.io-client";
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Save } from 'lucide-react';
@@ -14,15 +15,17 @@ const Admin = () => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    // Redirect if no admin name
-    if (!adminName) {
-      navigate('/admin-login');
-      return;
-    }
-    const socket = io("https://quiz-master-app-97b2.onrender.com");
-    setSocket(newSocket);
-    return () => newSocket.close();
-  }, [adminName, navigate]);
+  // Redirect if no admin name
+  if (!adminName) {
+    navigate('/admin-login');
+    return;
+  }
+
+ const socket = io("http://localhost:3001"); 
+ setSocket(newSocket);
+
+  return () => newSocket.close();
+}, [adminName, navigate]);
 
   const addQuestion = () => {
     setQuestions([
@@ -51,31 +54,39 @@ const Admin = () => {
   };
 
   const saveAndPublish = () => {
-    // Validate
-    for (let i = 0; i < questions.length; i++) {
-      const q = questions[i];
-      if (!q.question.trim()) {
-        alert(`Question ${i + 1}: Please enter the question text.`);
-        return;
-      }
-      if (q.options.some(o => !o.trim())) {
-        alert(`Question ${i + 1}: Please fill out all 4 options.`);
-        return;
-      }
+
+  if (!socket) {
+    alert("Socket not connected yet");
+    return;
+  }
+
+  // Validate
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
+
+    if (!q.question.trim()) {
+      alert(`Question ${i + 1}: Please enter the question text.`);
+      return;
     }
 
-    setIsSaving(true);
-    socket.emit('createQuiz', { questions, adminName }, (response) => {
-      if (response.success) {
-        // Store the quizId so Host can use it
-        sessionStorage.setItem('hostQuizId', response.quizId);
-        navigate(`/host/${response.quizId}`);
-      } else {
-        alert('Failed to create quiz');
-        setIsSaving(false);
-      }
-    });
-  };
+    if (q.options.some(o => !o.trim())) {
+      alert(`Question ${i + 1}: Please fill out all 4 options.`);
+      return;
+    }
+  }
+
+  setIsSaving(true);
+
+  socket.emit('createQuiz', { questions, adminName }, (response) => {
+    if (response.success) {
+      sessionStorage.setItem('hostQuizId', response.quizId);
+      navigate(`/host/${response.quizId}`);
+    } else {
+      alert('Failed to create quiz');
+      setIsSaving(false);
+    }
+  });
+};
 
   const optionLabels = ['A', 'B', 'C', 'D'];
 

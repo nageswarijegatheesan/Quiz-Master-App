@@ -50,14 +50,14 @@ io.on('connection', (socket) => {
     // Update the adminId to the new socket so startQuiz works
     quiz.adminId = socket.id;
     socket.join(`admin-${quizId}`);
-    
+
     // Send back existing participant list so admin sees them
     const existingParticipants = Object.entries(quiz.participants).map(([id, p]) => ({
       participantId: id,
       name: p.name,
       avatar: p.avatar
     }));
-    
+
     if (callback) callback({ success: true, participants: existingParticipants });
   });
 
@@ -92,10 +92,10 @@ io.on('connection', (socket) => {
 
     participants[socket.id] = { participantId, quizId };
     socket.join(`quiz-${quizId}`);
-    
+
     // Notify admin
-    io.to(`admin-${quizId}`).emit('participantJoined', { 
-      participantId, 
+    io.to(`admin-${quizId}`).emit('participantJoined', {
+      participantId,
       name: trimmedName,
       avatar: avatar || '👤',
       totalParticipants: Object.keys(quiz.participants).length
@@ -143,14 +143,14 @@ io.on('connection', (socket) => {
 
     participant.answeredCurrent = true;
     const currentQ = quiz.questions[quiz.currentQuestionIndex];
-    
+
     if (answerIndex === currentQ.correctOption) {
       // Correct answer: 10 points
       let points = 10;
       // Bonus points based on speed (up to 5 extra points for answering immediately)
       const maxTime = currentQ.timeLimit;
       if (timeTaken < maxTime) {
-         points += Math.floor(( (maxTime - timeTaken) / maxTime ) * 5);
+        points += Math.floor(((maxTime - timeTaken) / maxTime) * 5);
       }
       participant.score += points;
     }
@@ -162,7 +162,7 @@ io.on('connection', (socket) => {
     if (!quiz) return;
 
     quiz.currentQuestionIndex++;
-    
+
     // Reset answered status
     Object.values(quiz.participants).forEach(p => p.answeredCurrent = false);
 
@@ -172,7 +172,7 @@ io.on('connection', (socket) => {
       const leaderboard = Object.values(quiz.participants)
         .map(p => ({ name: p.name, avatar: p.avatar, score: p.score }))
         .sort((a, b) => b.score - a.score);
-        
+
       io.to(`quiz-${quizId}`).emit('quizFinished', { leaderboard });
       io.to(`admin-${quizId}`).emit('quizFinished', { leaderboard });
       return;
@@ -206,13 +206,13 @@ io.on('connection', (socket) => {
       .sort((a, b) => b.score - a.score)
       .slice(0, 10); // Top 10
 
-    io.to(`quiz-${quizId}`).emit('questionLeaderboard', { 
-      leaderboard, 
-      correctOption: currentQ.correctOption 
+    io.to(`quiz-${quizId}`).emit('questionLeaderboard', {
+      leaderboard,
+      correctOption: currentQ.correctOption
     });
-    io.to(`admin-${quizId}`).emit('questionLeaderboard', { 
-      leaderboard, 
-      correctOption: currentQ.correctOption 
+    io.to(`admin-${quizId}`).emit('questionLeaderboard', {
+      leaderboard,
+      correctOption: currentQ.correctOption
     });
 
     // Show leaderboard for 5 seconds, then next question
@@ -242,4 +242,7 @@ server.listen(PORT, () => {
 });
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
+});
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
