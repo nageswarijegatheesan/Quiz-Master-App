@@ -19,7 +19,7 @@ const Admin = () => {
       navigate('/admin-login');
       return;
     }
-    const newSocket = io('http://localhost:3001');
+    const socket = io("https://quiz-master-app-97b2.onrender.com");
     setSocket(newSocket);
     return () => newSocket.close();
   }, [adminName, navigate]);
